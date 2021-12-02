@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Tic-Tac-Toe</title>
+		<link rel="stylesheet" type="text/css" href="stylesheets/style.css" />
+		<link rel="shortcut icon" type="image/jpg" href="favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		
+		<style>
+			.board {
+				padding: 1px;
+				display: grid;
+				grid-template: repeat(3, 32vh) / repeat(3, 32vh);
+			}
+			.cell {
+				background: white;
+				color: black
+			}
+		</style>
+	</head>
+
+	<body>
+		<header>
+			<h1 style='background-color: lightblue;' id='status-bar'>Searching for match...</h1>
+		</header>
+		<div class="board">
+			<button id='cell-00' onClick="playTile0()" class="cell"></button>
+			<button id='cell-10' onClick="playTile1()" class="cell"></button>
+			<button id='cell-20' onClick="playTile2()" class="cell"></button>
+			<button id='cell-01' onClick="playTile3()" class="cell"></button>
+			<button id='cell-11' onClick="playTile4()" class="cell"></button>
+			<button id='cell-21' onClick="playTile5()" class="cell"></button>
+			<button id='cell-02' onClick="playTile6()" class="cell"></button>
+			<button id='cell-12' onClick="playTile7()" class="cell"></button>
+			<button id='cell-22' onClick="playTile8()" class="cell"></button>
+		</div>
+
+
+		<script src="/socket.io/socket.io.js"></script>
+		<script
+			src="javascripts/game_client.js"
+			type="text/javascript"
+		></script>
+	</body>
+</html>
