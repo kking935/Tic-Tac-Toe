@@ -6,6 +6,7 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
+const { getWinner } = require('./lib/game_manager');
 const io = new Server(server);
 
 app.set("port", (process.env.PORT || 3001));  // Use either given port or 3001 as default
@@ -22,58 +23,121 @@ app.get("*", function(req, res) {
 	res.status(404).send("Error 404 - Page not found");
 });
 
-let board = [
-	[-1, -1, -1],
-	[-1, -1, -1],
-	[-1, -1, -1]
-]
+const createBoard = () => {
+	return [
+		[-1, -1, -1],
+		[-1, -1, -1],
+		[-1, -1, -1]
+	]
+}
 
-let roomNums = 0 
-let boards = {}
+let games = new Map()
+let waitingPlayer = undefined
 
-const joinRoom = (socket) => {
-	let currentRoom = roomNums - roomNums % 2
+const handleJoinRoom = (socket) => {
+	console.log('inside join room')
+	if (waitingPlayer == undefined) {
+		console.log("Adding player to game queue")
+		waitingPlayer = socket
+		socket.isCircle = true
+		return
+	}
+	socket.isCircle = false
+	let currentRoom = socket.id + waitingPlayer.id
 	socket.currentRoom = currentRoom
-	let roomIsReady = roomNums % 2 != 0
-	roomNums += 1
+	waitingPlayer.currentRoom = currentRoom
 	socket.join(`room${currentRoom}`)
-	socket.emit("set shape", !roomIsReady)
-	if (roomIsReady) {
-		boards[currentRoom] = [[-1, -1, -1],[-1,-1,-1],[-1,-1,-1]]
-		console.log("sending update signal to ", `room${currentRoom}`)
-		io.to(`room${currentRoom}`).emit("update board", boards[currentRoom])
+	waitingPlayer.join(`room${currentRoom}`)
+	games.set(currentRoom, {
+		board: createBoard(),
+		turn: true,
+		players: [socket, waitingPlayer],
+		roomId: currentRoom
+	})
+	console.log("creating new room" , currentRoom)
+	waitingPlayer.emit("start game", games.get(currentRoom).board, games.get(currentRoom).turn, true)
+	socket.emit("start game", games.get(currentRoom).board, games.get(currentRoom).turn, false)
+	waitingPlayer = undefined
+}
+
+const handleSelect = (socket, x, y, isCircle) => {
+	if (!socket.currentRoom || !games.has(socket.currentRoom)) {
+		console.log("Could not select move because board could not be found")
+		return
+	}
+	var curGame = games.get(socket.currentRoom)
+	
+	console.log('curTurn: ', curGame.turn, ' socket.isCircle', socket.isCircle)
+	
+	if (curGame.turn != socket.isCircle) {
+		console.log("A player tried to play out of turn, ignoring...")
+		return
+	}
+
+	console.log('player selected tile', x, y)
+	if (curGame.board[y][x] != -1) {
+		console.log("player tried to select already selected tile")
+		return 
+	}
+	console.log(socket.isCircle)
+	if (isCircle) {
+		curGame.board[y][x] = 0
+	}
+	else {
+		curGame.board[y][x] = 1
+	}
+	games.set(socket.currentRoom, {...curGame, turn: !curGame.turn})
+
+	const winner = getWinner(curGame.board)
+	if (winner != 0) {
+		handleGameOver(curGame, winner)
+	}
+	else {
+		io.to(`room${socket.currentRoom}`).emit('update board', games.get(socket.currentRoom).board, games.get(socket.currentRoom).turn)
+	}
+}
+
+const handleGameOver = (game, winner) => {
+	io.to(`room${game.roomId}`).emit('game over', game.board, winner == 1)
+	game.players.forEach((playerSocket) => {
+		playerSocket.leave(`room${game.roomId}`)
+	})
+	games.delete(game.roomId)
+}
+
+const handleDisconnect = (socket) => {
+	console.log('user disconnected')
+	if (waitingPlayer == socket) {
+		waitingPlayer = undefined
+	}
+	if (socket.currentRoom && games.has(socket.currentRoom)) {
+		console.log("Deleting room ", socket.currentRoom)
+		var curPlayers = games.get(socket.currentRoom).players
+		curPlayers.forEach((playerSocket) => {
+			playerSocket.leave(`room${socket.currentRoom}`)
+			playerSocket.emit('leave room')
+		})
+		games.delete(socket.currentRoom)
 	}
 }
 
 io.on('connection', (socket) => {
 	console.log('a user connected')
-	joinRoom(socket)
+
+	socket.on('join game', () => {
+		console.log("new request to join game!")
+		handleJoinRoom(socket)
+	})
 
 	socket.on('select', (x, y, isCircle) => {
-		var curBoard = boards[socket.currentRoom]
-		console.log('player selected tile', x, y)
-		if (curBoard[y][x] != -1) {
-			console.log("player tried to select already selected tile")
-			return 
-		}
-		console.log(socket.isCircle)
-		if (isCircle) {
-			curBoard[y][x] = 0
-		}
-		else {
-			curBoard[y][x] = 1
-		}
-		boards[socket.currentRoom] = curBoard
-		io.to(`room${socket.currentRoom}`).emit('update board', boards[socket.currentRoom])
+		handleSelect(socket, x, y, isCircle)
 	})
 
 	socket.on('disconnect', () => {
-		console.log('user disconnected')
+		handleDisconnect(socket)
 	})
 })
 
-
-// Start http server
 server.listen(app.get("port"), () => {
 	console.log("Node app started on port %s", app.get("port"));
 });

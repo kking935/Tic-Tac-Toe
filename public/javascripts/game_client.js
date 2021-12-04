@@ -1,7 +1,17 @@
 var socket = io();
 
 var shape = ''
-var turn = true
+
+const joinGame = () => {
+	console.log("requesting to join room")
+	console.log(socket)
+	socket.emit('join game')
+	document.getElementById('lobby').classList = 'actionScreen invisible'
+	document.getElementById('quit').classList = 'actionScreen invisible'
+	document.getElementById('game').classList = 'invisible'
+	document.getElementById('waiting').classList = 'actionScreen visible'
+	document.getElementById('restart-button').classList = 'actionButton invisible'
+}
 
 const getAvailableMoves = (board) => {
 	var availableMoves = []
@@ -13,70 +23,6 @@ const getAvailableMoves = (board) => {
 		}
 	}
 	return availableMoves
-}
-
-/**
- * Returns the winner, if there is one
- * @param {the current state of the board} board 
- * @returns 1 if O won, -1 if X won, or 0 if no winner
- */
-const getWinner = (board) => {
-	for (var row = 0; row < board.length; row++) {
-		if (board[row][0] != -1) {
-			var allMatch = true
-			for (var col = 1; col < board[0].length; col++) {
-				if (board[row][col] != board[row][0]) {
-					allMatch = false
-					break
-				}
-			}
-			if (allMatch) {
-				if (board[row][0] == 0) {
-					return 1
-				}
-				else {
-					return -1
-				}
-			}
-		}
-	}
-	for (var col = 0; col < board[0].length; col++) {
-		if (board[0][col] != -1) {
-			var allMatch = true
-			for (var row = 1; row < board.length; row++) {
-				if (board[row][col] != board[0][col]) {
-					allMatch = false
-					break
-				}
-			}
-			if (allMatch) {
-				if (board[0][col] == 0) {
-					return 1
-				}
-				else {
-					return -1
-				}
-			}
-		}
-	}
-	if (board[0][0] != -1 && board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
-		if (board[0][0] == 0) {
-			return 1
-		}
-		else {
-			return -1
-		}
-	}
-	if (board[0][2] != -1 && board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
-		if (board[0][2] == 0) {
-			return 1
-		}
-		else {
-			return -1
-		}
-	}
-
-	return 0
 }
 
 const createMove = (currentBoard, move, shape) => {
@@ -94,6 +40,7 @@ const createMove = (currentBoard, move, shape) => {
 }
 
 const getBestMove = (board, takeMin) => {
+	return
 	var winner = getWinner(board)
 	if (winner != 0) {
 		return winner
@@ -108,23 +55,32 @@ const getBestMove = (board, takeMin) => {
 		var tempBoard = createMove(board, move, shape)
 		var tempCost = getBestMove(tempBoard, !takeMin)
 
-		outcomes.push({move, createMove(board, move, shape)})
+		outcomes.push({move, board:createMove(board, move, shape)})
 	})
+
 }
 
-socket.on("set shape", (isCircle) => {
+const handleSetShape = (isCircle) => {
 	if (isCircle) {
 		shape = 'O'
-		turn = false
 	}
 	else {
 		shape = 'X'
 	}
-})
+	console.log("Shape is ", shape)
+}
 
-const updateStatus = () => {
+const updateStatus = (turn, winner) => {
 	var message = ''
-	if (turn) {
+	if (winner != 0) {
+		if ((winner == 1 && shape == 'O') || (winner == -1 && shape == 'X')) {
+			message = 'You Win!'
+		}
+		else {
+			message = 'You Loose!'
+		}
+	}
+	else if ((turn && shape == 'O') || (!turn && shape == 'X')) {
 		console.log('your turn')
 		message = 'Your Turn'
 	}
@@ -134,23 +90,56 @@ const updateStatus = () => {
 	document.getElementById("status-bar").innerHTML = message
 }
 
-socket.on('update board', (board) => {
+const handleUpdateBoard = (board) => {
 	console.log(board)
-	turn = !turn
-	updateStatus()
 	for (y = 0; y < 3; y++) {
 		for (x = 0; x < 3; x++) {
-			if (board[y][x] != -1) {
-				if (board[y][x] == 0) {
-					document.getElementById(`cell-${x}${y}`).innerHTML = "O"
-				}
-				else {
-					document.getElementById(`cell-${x}${y}`).innerHTML = "X"
-				}
-				console.log('updated cell ', x, y, ' to value ', board[y][x])
+			if (board[y][x] == 0) {
+				document.getElementById(`cell-${x}${y}`).innerHTML = "O"
+			}
+			else if (board[y][x] == 1) {
+				document.getElementById(`cell-${x}${y}`).innerHTML = "X"
+			}
+			else {
+				document.getElementById(`cell-${x}${y}`).innerHTML = ""
 			}
 		}
 	}
+}
+
+socket.on("start game", (board, turn, isCircle) => {
+	console.log('is circle', isCircle)
+	handleSetShape(isCircle)
+	document.getElementById('waiting').classList = 'actionScreen invisible'
+	document.getElementById('game').classList = 'visible'
+	handleUpdateBoard(board)
+	updateStatus(turn, 0)
+})
+
+socket.on('update board', (board, turn) => {
+	handleUpdateBoard(board)
+	updateStatus(turn, 0)
+})
+
+socket.on("game over", (board, winner) => {
+	console.log(winner, ' won the game')
+	handleUpdateBoard(board)
+	updateStatus(false, winner)
+	// document.getElementById('game').classList = 'invisible'
+	// document.getElementById('quit').classList = 'actionScreen visible'
+	document.getElementById('restart-button').classList = 'actionButton visible'
+})
+
+socket.on("leave room", () => {
+	console.log("the other player disconnected")
+	document.getElementById('game').classList = 'invisible'
+	document.getElementById('quit').classList = 'actionScreen visible'
+})
+
+socket.on("disconnect", () => {
+	console.log("the player disconnected")
+	document.getElementById('game').classList = 'invisible'
+	document.getElementById('quit').classList = 'actionScreen visible'
 })
 
 function playTile(x, y) {

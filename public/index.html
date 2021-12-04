@@ -12,33 +12,93 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		
 		<style>
+			#game {
+				width: 100vw;
+				height: auto;
+				min-height: 100vh;
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				background-color: rgb(112, 174, 255);
+				display: flex;
+				flex-direction: column;
+				justify-content: space-evenly;
+				align-items: center;
+			}
 			.board {
 				padding: 1px;
 				display: grid;
-				grid-template: repeat(3, 32vh) / repeat(3, 32vh);
+				grid-template: repeat(3, 32vw) / repeat(3, 32vw);
+			}
+			.board button {
+				font-size: 50px;
 			}
 			.cell {
 				background: white;
 				color: black
 			}
+			.actionScreen {
+				box-sizing: border-box;
+				width: 100vw;
+				height: auto;
+				padding: 10px 5vw;
+				min-height: 100vh;
+				position: absolute;
+				left: 0px;
+				top: 0px;
+				background-color: rgb(112, 174, 255);
+				display: flex;
+				flex-direction: column;
+				justify-content:space-evenly;
+				align-items: center;
+			}
+			.actionButton {
+				padding: 10px;
+				background-color: white;
+				border-radius: 10px;
+				font-weight: 700;
+			}
+			.invisible {
+				visibility: hidden;
+			}
+			.visible {
+				visibility: visible;
+			}
 		</style>
 	</head>
 
 	<body>
-		<header>
-			<h1 style='background-color: lightblue;' id='status-bar'>Searching for match...</h1>
-		</header>
-		<div class="board">
-			<button id='cell-00' onClick="playTile0()" class="cell"></button>
-			<button id='cell-10' onClick="playTile1()" class="cell"></button>
-			<button id='cell-20' onClick="playTile2()" class="cell"></button>
-			<button id='cell-01' onClick="playTile3()" class="cell"></button>
-			<button id='cell-11' onClick="playTile4()" class="cell"></button>
-			<button id='cell-21' onClick="playTile5()" class="cell"></button>
-			<button id='cell-02' onClick="playTile6()" class="cell"></button>
-			<button id='cell-12' onClick="playTile7()" class="cell"></button>
-			<button id='cell-22' onClick="playTile8()" class="cell"></button>
-		</div>
+		<section id='lobby' class='actionScreen visible'>
+			<h1>Tic Tac Toe</h1>
+			<button class="actionButton" onclick="joinGame()">Join Game</button>
+			<div></div>
+		</section>
+		<section id='waiting' class="actionScreen invisible">
+			<h1>Searching for players...</h1>
+		</section>
+		<section id='game' class="invisible">
+			<header>
+				<h1 id='status-bar'>Searching for match...</h1>
+			</header>
+			<div class="board">
+				<button id='cell-00' onClick="playTile0()" class="cell"></button>
+				<button id='cell-10' onClick="playTile1()" class="cell"></button>
+				<button id='cell-20' onClick="playTile2()" class="cell"></button>
+				<button id='cell-01' onClick="playTile3()" class="cell"></button>
+				<button id='cell-11' onClick="playTile4()" class="cell"></button>
+				<button id='cell-21' onClick="playTile5()" class="cell"></button>
+				<button id='cell-02' onClick="playTile6()" class="cell"></button>
+				<button id='cell-12' onClick="playTile7()" class="cell"></button>
+				<button id='cell-22' onClick="playTile8()" class="cell"></button>
+			</div>
+			<button class="actionButton invisible" id='restart-button' onclick="joinGame()">New Game</button>
+			<div></div>
+		</section>
+		<section id='quit' class="actionScreen invisible">
+			<h1>Tic Tac Toe</h1>
+			<h2>Your opponent quit</h2>
+			<button class="actionButton" onclick="joinGame()">New Game</button>
+		</section>
 
 
 		<script src="/socket.io/socket.io.js"></script>
