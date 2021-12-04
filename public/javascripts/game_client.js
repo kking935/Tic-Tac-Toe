@@ -13,53 +13,6 @@ const joinGame = () => {
 	document.getElementById('restart-button').classList = 'actionButton invisible'
 }
 
-const getAvailableMoves = (board) => {
-	var availableMoves = []
-	for (var row = 0; row < board.length; row++) {
-		for (var col = 0; col < board[0].length; col++) {
-			if (board[row][col] == -1) {
-				availableMoves.push({x:col, y:row})
-			}
-		}
-	}
-	return availableMoves
-}
-
-const createMove = (currentBoard, move, shape) => {
-	var value = shape == 'O' ? 0 : 1
-	var newBoard = []
-	for (var row = 0; row < currentBoard.length; row++) {
-		newRow = []
-		for (var col = 0; col < currentBoard[0].length; col++) {
-			newRow.push(currentBoard[row][col])
-		}
-		newBoard.push(newRow)
-	}
-	newBoard[move.y][move.x] = value
-	return newBoard
-}
-
-const getBestMove = (board, takeMin) => {
-	return
-	var winner = getWinner(board)
-	if (winner != 0) {
-		return winner
-	}
-	var availableMoves = getAvailableMoves()
-	
-	outcomes = []
-	var min = Number.MAX_SAFE_INTEGER
-	var max = Number.MIN_SAFE_INTEGER
-
-	availableMoves.forEach((move) => {
-		var tempBoard = createMove(board, move, shape)
-		var tempCost = getBestMove(tempBoard, !takeMin)
-
-		outcomes.push({move, board:createMove(board, move, shape)})
-	})
-
-}
-
 const handleSetShape = (isCircle) => {
 	if (isCircle) {
 		shape = 'O'
