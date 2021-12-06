@@ -3,6 +3,8 @@ logs
 *.log
 npm-debug.log*
 
+__pycache__
+
 # Runtime data
 pids
 *.pid
