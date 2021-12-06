@@ -6,7 +6,7 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-const { getWinner } = require('./lib/game_manager');
+const { getWinner, getBestMove } = require('./lib/game_manager');
 const io = new Server(server);
 
 app.set("port", (process.env.PORT || 3001));  // Use either given port or 3001 as default
@@ -79,6 +79,8 @@ const handleSelect = (socket, x, y, isCircle) => {
 		console.log("player tried to select already selected tile")
 		return 
 	}
+	// var bestOption = getBestMove(curGame.board, socket.isCircle, false)
+	// console.log("the best move is ", bestOption.move)
 	console.log(socket.isCircle)
 	if (isCircle) {
 		curGame.board[y][x] = 0
