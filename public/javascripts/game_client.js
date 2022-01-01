@@ -30,9 +30,12 @@ const handleSetShape = (isCircle) => {
 
 const updateStatus = (turn, winner) => {
 	var message = ''
-	if (winner != 0) {
+	if (winner != undefined) {
 		if ((winner == 1 && shape == 'O') || (winner == -1 && shape == 'X')) {
 			message = 'You Win!'
+		}
+		else if (winner == 0) {
+			message = 'You Tie!'
 		}
 		else {
 			message = 'You Loose!'
@@ -71,12 +74,12 @@ socket.on("start game", (board, turn, isCircle) => {
 	document.getElementById('waiting').classList = 'actionScreen invisible'
 	document.getElementById('game').classList = 'visible'
 	handleUpdateBoard(board)
-	updateStatus(turn, 0)
+	updateStatus(turn, undefined)
 })
 
 socket.on('update board', (board, turn) => {
 	handleUpdateBoard(board)
-	updateStatus(turn, 0)
+	updateStatus(turn, undefined)
 })
 
 socket.on("game over", (board, winner) => {
