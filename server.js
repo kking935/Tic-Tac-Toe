@@ -6,7 +6,7 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-const { getWinner, getBestMove } = require('./lib/game_manager');
+const { getWinner, getBestMove, GameAgent } = require('./lib/game_manager');
 const io = new Server(server);
 
 app.set("port", (process.env.PORT || 3001));  // Use either given port or 3001 as default
@@ -60,41 +60,73 @@ const handleJoinRoom = (socket) => {
 	waitingPlayer = undefined
 }
 
+const handleJoinCPURoom = (socket) => {
+	console.log('inside join cpu room')
+	socket.isCircle = true
+	let currentRoom = socket.id
+	socket.currentRoom = currentRoom
+	socket.vsCPU = true
+	socket.join(`room${currentRoom}`)
+	games.set(currentRoom, {
+		board: createBoard(),
+		turn: true,
+		players: [socket],
+		roomId: currentRoom
+	})
+	socket.emit("start game", games.get(currentRoom).board, games.get(currentRoom).turn, true)
+}
+
 const handleSelect = (socket, x, y, isCircle) => {
 	if (!socket.currentRoom || !games.has(socket.currentRoom)) {
 		console.log("Could not select move because board could not be found")
 		return
 	}
 	var curGame = games.get(socket.currentRoom)
-	
-	console.log('curTurn: ', curGame.turn, ' socket.isCircle', socket.isCircle)
-	
 	if (curGame.turn != socket.isCircle) {
 		console.log("A player tried to play out of turn, ignoring...")
 		return
 	}
-
-	console.log('player selected tile', x, y)
 	if (curGame.board[y][x] != -1) {
 		console.log("player tried to select already selected tile")
 		return 
 	}
-	// var bestOption = getBestMove(curGame.board, socket.isCircle, false)
-	// console.log("the best move is ", bestOption.move)
-	console.log(socket.isCircle)
+
 	if (isCircle) {
 		curGame.board[y][x] = 0
 	}
 	else {
 		curGame.board[y][x] = 1
 	}
+
 	games.set(socket.currentRoom, {...curGame, turn: !curGame.turn})
 
 	const winner = getWinner(curGame.board)
 	if (winner != 0) {
 		handleGameOver(curGame, winner)
+		return
 	}
-	else {
+
+	io.to(`room${socket.currentRoom}`).emit('update board', games.get(socket.currentRoom).board, games.get(socket.currentRoom).turn)
+
+	if (socket.vsCPU) {
+		var curGame = games.get(socket.currentRoom)
+		const bestOption = getBestMove(curGame.board, false, true)
+		
+		if (isCircle) {
+			curGame.board[bestOption.move.y][bestOption.move.x] = 1
+		}
+		else {
+			curGame.board[bestOption.move.y][bestOption.move.x] = 0
+		}
+
+		games.set(socket.currentRoom, {...curGame, turn: !curGame.turn})
+
+		const winner = getWinner(curGame.board)
+		if (winner != 0) {
+			handleGameOver(curGame, winner)
+			return
+		}
+
 		io.to(`room${socket.currentRoom}`).emit('update board', games.get(socket.currentRoom).board, games.get(socket.currentRoom).turn)
 	}
 }
@@ -126,9 +158,14 @@ const handleDisconnect = (socket) => {
 io.on('connection', (socket) => {
 	console.log('a user connected')
 
-	socket.on('join game', () => {
+	socket.on('join game', (vsCPU) => {
 		console.log("new request to join game!")
 		handleJoinRoom(socket)
+	})
+
+	socket.on('join cpu game', () => {
+		console.log("new request to join cpu game!")
+		handleJoinCPURoom(socket)
 	})
 
 	socket.on('select', (x, y, isCircle) => {

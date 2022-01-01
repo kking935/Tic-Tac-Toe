@@ -2,10 +2,15 @@ var socket = io();
 
 var shape = ''
 
-const joinGame = () => {
+const joinGame = (vsCPU) => {
 	console.log("requesting to join room")
 	console.log(socket)
-	socket.emit('join game')
+	if (vsCPU) {
+		socket.emit('join cpu game')
+	}
+	else {
+		socket.emit('join game')
+	}
 	document.getElementById('lobby').classList = 'actionScreen invisible'
 	document.getElementById('quit').classList = 'actionScreen invisible'
 	document.getElementById('game').classList = 'invisible'
