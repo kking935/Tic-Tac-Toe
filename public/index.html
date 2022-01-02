@@ -28,14 +28,14 @@
 			.board {
 				padding: 1px;
 				display: grid;
-				grid-template: repeat(3, 32vw) / repeat(3, 32vw);
+				grid-template: repeat(3, 28vh) / repeat(3, 28vw);
 			}
 			.board button {
 				font-size: 50px;
 			}
 			.cell {
-				background: white;
-				color: black
+				color: black;
+				border: none
 			}
 			.actionScreen {
 				box-sizing: border-box;
@@ -82,15 +82,15 @@
 				<h1 id='status-bar'>Searching for match...</h1>
 			</header>
 			<div class="board">
-				<button id='cell-00' onClick="playTile0()" class="cell"></button>
-				<button id='cell-10' onClick="playTile1()" class="cell"></button>
-				<button id='cell-20' onClick="playTile2()" class="cell"></button>
-				<button id='cell-01' onClick="playTile3()" class="cell"></button>
-				<button id='cell-11' onClick="playTile4()" class="cell"></button>
-				<button id='cell-21' onClick="playTile5()" class="cell"></button>
-				<button id='cell-02' onClick="playTile6()" class="cell"></button>
-				<button id='cell-12' onClick="playTile7()" class="cell"></button>
-				<button id='cell-22' onClick="playTile8()" class="cell"></button>
+				<button class='cell' id='cell-00' onClick="playTile0()"></button>
+				<button class='cell' style="border-left: 1px solid white; border-right: 1px solid white;" id='cell-10' onClick="playTile1()"></button>
+				<button class='cell' id='cell-20' onClick="playTile2()" ></button>
+				<button class='cell' style="border-top: 1px solid white; border-bottom: 1px solid white;" id='cell-01' onClick="playTile3()"></button>
+				<button class='cell' style="border-top: 1px solid white; border-bottom: 1px solid white; border-left: 1px solid white; border-right: 1px solid white;" id='cell-11' onClick="playTile4()"></button>
+				<button class='cell' style="border-top: 1px solid white; border-bottom: 1px solid white;" id='cell-21' onClick="playTile5()"></button>
+				<button class='cell ' id='cell-02' onClick="playTile6()"></button>
+				<button class='cell' style="border-left: 1px solid white; border-right: 1px solid white;" id='cell-12' onClick="playTile7()"></button>
+				<button class='cell ' id='cell-22' onClick="playTile8()"></button>
 			</div>
 			<button class="actionButton invisible" id='restart-button-human' onclick="joinGame(false)">New Game</button>
 			<button class="actionButton invisible" id='restart-button-cpu' onclick="joinGame(true)">VS CPU</button>
