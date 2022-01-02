@@ -1,21 +1,18 @@
-var socket = io();
+let socket = io();
 
-var shape = ''
+let shape = ''
 
 const joinGame = (vsCPU) => {
 	console.log("requesting to join room")
-	console.log(socket)
-	if (vsCPU) {
-		socket.emit('join cpu game')
-	}
-	else {
-		socket.emit('join game')
-	}
+
+	socket.emit('join game', vsCPU)
+
 	document.getElementById('lobby').classList = 'actionScreen invisible'
 	document.getElementById('quit').classList = 'actionScreen invisible'
 	document.getElementById('game').classList = 'invisible'
 	document.getElementById('waiting').classList = 'actionScreen visible'
-	document.getElementById('restart-button').classList = 'actionButton invisible'
+	document.getElementById('restart-button-human').classList = 'actionButton invisible'
+	document.getElementById('restart-button-cpu').classList = 'actionButton invisible'
 }
 
 const handleSetShape = (isCircle) => {
@@ -28,25 +25,28 @@ const handleSetShape = (isCircle) => {
 	console.log("Shape is ", shape)
 }
 
-const updateStatus = (turn, winner) => {
-	var message = ''
-	if (winner != undefined) {
-		if ((winner == 1 && shape == 'O') || (winner == -1 && shape == 'X')) {
-			message = 'You Win!'
-		}
-		else if (winner == 0) {
-			message = 'You Tie!'
-		}
-		else {
-			message = 'You Loose!'
-		}
-	}
-	else if ((turn && shape == 'O') || (!turn && shape == 'X')) {
+const updateTurnStatus = (turn) => {
+	let message = ''
+	if ((turn && shape == 'O') || (!turn && shape == 'X')) {
 		console.log('your turn')
 		message = 'Your Turn'
 	}
 	else {
 		message = 'Opponents Turn'
+	}
+	document.getElementById("status-bar").innerHTML = message
+}
+
+const updateWinnerStatus = (winner) => {
+	let message = ''
+	if ((winner == 1 && shape == 'O') || (winner == -1 && shape == 'X')) {
+		message = 'You Win!'
+	}
+	else if (winner == 0) {
+		message = 'You Tie!'
+	}
+	else {
+		message = 'You Lose!'
 	}
 	document.getElementById("status-bar").innerHTML = message
 }
@@ -74,21 +74,22 @@ socket.on("start game", (board, turn, isCircle) => {
 	document.getElementById('waiting').classList = 'actionScreen invisible'
 	document.getElementById('game').classList = 'visible'
 	handleUpdateBoard(board)
-	updateStatus(turn, undefined)
+	updateTurnStatus(turn)
 })
 
 socket.on('update board', (board, turn) => {
 	handleUpdateBoard(board)
-	updateStatus(turn, undefined)
+	updateTurnStatus(turn)
 })
 
 socket.on("game over", (board, winner) => {
 	console.log(winner, ' won the game')
 	handleUpdateBoard(board)
-	updateStatus(false, winner)
+	updateWinnerStatus(winner)
 	// document.getElementById('game').classList = 'invisible'
 	// document.getElementById('quit').classList = 'actionScreen visible'
-	document.getElementById('restart-button').classList = 'actionButton visible'
+	document.getElementById('restart-button-human').classList = 'actionButton visible'
+	document.getElementById('restart-button-cpu').classList = 'actionButton visible'
 })
 
 socket.on("leave room", () => {
@@ -104,7 +105,7 @@ socket.on("disconnect", () => {
 })
 
 function playTile(x, y) {
-	socket.emit('select', x, y, shape == 'O')
+	socket.emit('select', {x, y})
 }
 
 function playTile0() {

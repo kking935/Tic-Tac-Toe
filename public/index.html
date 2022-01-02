@@ -92,15 +92,15 @@
 				<button id='cell-12' onClick="playTile7()" class="cell"></button>
 				<button id='cell-22' onClick="playTile8()" class="cell"></button>
 			</div>
-			<button class="actionButton invisible" id='restart-button' onclick="joinGame(false)">New Game</button>
-			<button class="actionButton invisible" id='restart-button' onclick="joinGame(true)">VS CPU</button>
+			<button class="actionButton invisible" id='restart-button-human' onclick="joinGame(false)">New Game</button>
+			<button class="actionButton invisible" id='restart-button-cpu' onclick="joinGame(true)">VS CPU</button>
 			<div></div>
 		</section>
 		<section id='quit' class="actionScreen invisible">
 			<h1>Tic Tac Toe</h1>
 			<h2>Your opponent quit</h2>
 			<button class="actionButton" onclick="joinGame(false)">New Game</button>
-			<button class="actionButton invisible" id='restart-button' onclick="joinGame(true)">VS CPU</button>
+			<button class="actionButton" onclick="joinGame(true)">VS CPU</button>
 		</section>
 
 
