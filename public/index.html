@@ -28,7 +28,7 @@
 			.board {
 				padding: 1px;
 				display: grid;
-				grid-template: repeat(3, 28vh) / repeat(3, 28vw);
+				grid-template: repeat(3, 25vh) / repeat(3, 25vw);
 			}
 			.board button {
 				font-size: 50px;
@@ -57,6 +57,7 @@
 				background-color: white;
 				border-radius: 10px;
 				font-weight: 700;
+				margin:0px 5px
 			}
 			.invisible {
 				visibility: hidden;
@@ -70,8 +71,10 @@
 	<body>
 		<section id='lobby' class='actionScreen visible'>
 			<h1>Tic Tac Toe</h1>
-			<button class="actionButton" onclick="joinGame(false)">Join Game</button>
-			<button class="actionButton" onclick="joinGame(true)">VS CPU</button>
+			<div>
+				<button class="actionButton" onclick="joinGame(false)">VS Human</button>
+				<button class="actionButton" onclick="joinGame(true)">VS CPU</button>
+			</div>
 			<div></div>
 		</section>
 		<section id='waiting' class="actionScreen invisible">
@@ -92,15 +95,18 @@
 				<button class='cell' style="border-left: 1px solid white; border-right: 1px solid white;" id='cell-12' onClick="playTile7()"></button>
 				<button class='cell ' id='cell-22' onClick="playTile8()"></button>
 			</div>
-			<button class="actionButton invisible" id='restart-button-human' onclick="joinGame(false)">New Game</button>
-			<button class="actionButton invisible" id='restart-button-cpu' onclick="joinGame(true)">VS CPU</button>
-			<div></div>
+			<a style='text-decoration: none;color:black; margin-right: auto; margin-left: 10px; display: flex; align-items: center;' href='/'>
+				<svg style='margin-right: 5px' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 12l9-8v6h15v4h-15v6z"/></svg>
+				Go Home
+			</a>
 		</section>
 		<section id='quit' class="actionScreen invisible">
 			<h1>Tic Tac Toe</h1>
 			<h2>Your opponent quit</h2>
-			<button class="actionButton" onclick="joinGame(false)">New Game</button>
-			<button class="actionButton" onclick="joinGame(true)">VS CPU</button>
+			<div>
+				<button class="actionButton" onclick="joinGame(false)">VS Human</button>
+				<button class="actionButton" onclick="joinGame(true)">VS CPU</button>
+			</div>
 		</section>
 
 

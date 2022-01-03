@@ -11,8 +11,6 @@ const joinGame = (vsCPU) => {
 	document.getElementById('quit').classList = 'actionScreen invisible'
 	document.getElementById('game').classList = 'invisible'
 	document.getElementById('waiting').classList = 'actionScreen visible'
-	document.getElementById('restart-button-human').classList = 'actionButton invisible'
-	document.getElementById('restart-button-cpu').classList = 'actionButton invisible'
 }
 
 const handleSetShape = (isCircle) => {
@@ -88,8 +86,6 @@ socket.on("game over", (board, winner) => {
 	updateWinnerStatus(winner)
 	// document.getElementById('game').classList = 'invisible'
 	// document.getElementById('quit').classList = 'actionScreen visible'
-	document.getElementById('restart-button-human').classList = 'actionButton visible'
-	document.getElementById('restart-button-cpu').classList = 'actionButton visible'
 })
 
 socket.on("leave room", () => {
