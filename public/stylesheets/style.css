@@ -162,12 +162,6 @@ body {
     background-color: aliceblue;
 }
 
-@media screen and (min-width: 500px) {
-    .visible {
-        visibility: hidden;
-        display: none;
-    }
-}
 
 @media screen and (max-width: 1000px) {
 	.header {

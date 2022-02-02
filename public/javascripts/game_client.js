@@ -3,12 +3,17 @@ let socket = io();
 let shape = ''
 
 const joinGame = (vsCPU) => {
-	console.log("requesting to join room")
+	let name = document.getElementById('player-name').value
+	if (!name) {
+		name = "Anon"
+	}
 
-	socket.emit('join game', vsCPU)
+	console.log("requesting to join room")
+	document.getElementById('restart-banner').classList = 'invisible'
+	
+	socket.emit('join game', name, vsCPU)
 
 	document.getElementById('lobby').classList = 'actionScreen invisible'
-	document.getElementById('quit').classList = 'actionScreen invisible'
 	document.getElementById('game').classList = 'invisible'
 	document.getElementById('waiting').classList = 'actionScreen visible'
 }
@@ -66,11 +71,13 @@ const handleUpdateBoard = (board) => {
 	}
 }
 
-socket.on("start game", (board, turn, isCircle) => {
+socket.on("start game", (board, turn, isCircle, oppName) => {
 	console.log('is circle', isCircle)
 	handleSetShape(isCircle)
 	document.getElementById('waiting').classList = 'actionScreen invisible'
+	document.getElementById('restart-banner').classList = 'invisible'
 	document.getElementById('game').classList = 'visible'
+	document.getElementById("oppName").innerHTML = 'VS ' + oppName
 	handleUpdateBoard(board)
 	updateTurnStatus(turn)
 })
@@ -84,20 +91,23 @@ socket.on("game over", (board, winner) => {
 	console.log(winner, ' won the game')
 	handleUpdateBoard(board)
 	updateWinnerStatus(winner)
+	document.getElementById('restart-banner').classList = 'visible'
 	// document.getElementById('game').classList = 'invisible'
-	// document.getElementById('quit').classList = 'actionScreen visible'
+	// document.getElementById('lobby').classList = 'actionScreen visible'
 })
 
 socket.on("leave room", () => {
 	console.log("the other player disconnected")
 	document.getElementById('game').classList = 'invisible'
-	document.getElementById('quit').classList = 'actionScreen visible'
+	document.getElementById('lobby').classList = 'actionScreen visible'
+	document.getElementById('player-name').classList = 'invisible'
+	document.getElementById('left-message').classList = 'visible'
 })
 
 socket.on("disconnect", () => {
 	console.log("the player disconnected")
 	document.getElementById('game').classList = 'invisible'
-	document.getElementById('quit').classList = 'actionScreen visible'
+	document.getElementById('lobby').classList = 'actionScreen visible'
 })
 
 function playTile(x, y) {

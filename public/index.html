@@ -65,12 +65,24 @@
 			.visible {
 				visibility: visible;
 			}
+			#player-name {
+				background-color: white;
+				padding: 10px;
+				margin-bottom: 10px;
+				text-align: center;
+				font-weight: 700;
+				font-size: larger;
+			}
 		</style>
 	</head>
 
 	<body>
 		<section id='lobby' class='actionScreen visible'>
 			<h1>Tic Tac Toe</h1>
+			<div>
+				<input id='player-name' type="text" placeholder="Name">
+			</div>
+			<h2 id='left-message' class='invisible'>Your opponent quit</h2>
 			<div>
 				<button class="actionButton" onclick="joinGame(false)">VS Human</button>
 				<button class="actionButton" onclick="joinGame(true)">VS CPU</button>
@@ -84,6 +96,7 @@
 			<header>
 				<h1 id='status-bar'>Searching for match...</h1>
 			</header>
+			<p id='oppName'></p>
 			<div class="board">
 				<button class='cell' id='cell-00' onClick="playTile0()"></button>
 				<button class='cell' style="border-left: 1px solid white; border-right: 1px solid white;" id='cell-10' onClick="playTile1()"></button>
@@ -95,20 +108,10 @@
 				<button class='cell' style="border-left: 1px solid white; border-right: 1px solid white;" id='cell-12' onClick="playTile7()"></button>
 				<button class='cell ' id='cell-22' onClick="playTile8()"></button>
 			</div>
-			<a style='text-decoration: none;color:black; margin-right: auto; margin-left: 10px; display: flex; align-items: center;' href='/'>
-				<svg style='margin-right: 5px' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 12l9-8v6h15v4h-15v6z"/></svg>
-				Go Home
-			</a>
-		</section>
-		<section id='quit' class="actionScreen invisible">
-			<h1>Tic Tac Toe</h1>
-			<h2>Your opponent quit</h2>
-			<div>
+			<div id='restart-banner' class="invisible">
 				<button class="actionButton" onclick="joinGame(false)">VS Human</button>
 				<button class="actionButton" onclick="joinGame(true)">VS CPU</button>
 			</div>
-		</section>
-
 
 		<script src="/socket.io/socket.io.js"></script>
 		<script
