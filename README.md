@@ -1,4 +1,4 @@
-# [Click here to play against a friend or try to beat my AI!](online-ttt.herokuapp.com)
+# [Click here to play against a friend or try to beat my AI!](https://online-ttt.herokuapp.com)
 This is a simple javascript multiplayer tic tac toe game that also demonstrates how the **minimax algorithm** can be used to create an unbeatable A.I. player.
 
 ## Minimax Algorithm
